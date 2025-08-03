@@ -63,7 +63,7 @@ class NEXP3:
     def sample_action(self, round):
         self.lr = 1 / np.sqrt(round+1)
         leaves = self.environment.tree.get_all_leaves()
-        a_t = self.rng.choice(np.range(self.K), 
+        a_t = self.rng.choice(range(self.K), 
                               p = self.proba)
         leaves_name = [leaf.name for leaf in self.leaves]
 
@@ -76,7 +76,7 @@ class NEXP3:
         proba_path.append(self.proba[a_t])
 
         past_vector_proba = self.proba
-        past_indexes = np.range(self.K)
+        past_indexes = range(self.K)
         past_nodes = self.leaves
         past_names = [leaf.name for leaf in past_nodes]
 

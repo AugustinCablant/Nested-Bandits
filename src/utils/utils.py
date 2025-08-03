@@ -4,7 +4,8 @@ base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../..")
 sys.path.append(base_dir)
 
 choices_algo = {'exp3': 'Exp3',
-                'new': 'NestedExponentialWeights'}
+                'new': 'NestedExponentialWeights', 
+                'nexp3': 'NEXP3'}
 
 def get_algo_by_name(settings):
     """ Gets distribution according to hyperparameter choice
