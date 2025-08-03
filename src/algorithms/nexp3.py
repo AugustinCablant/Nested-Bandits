@@ -59,57 +59,63 @@ class NEXP3:
         stable_exp_y = np.exp(y - np.max(y))
         proba_vector = stable_exp_y/np.sum(stable_exp_y)
         return proba_vector
-
+    
     def sample_action(self, round):
-        self.lr = 1 / np.sqrt(round+1)
+        self.lr = 1 / np.sqrt(round + 1)
         leaves = self.environment.tree.get_all_leaves()
-        a_t = self.rng.choice(range(self.K), 
-                              p = self.proba)
-        leaves_name = [leaf.name for leaf in self.leaves]
+        
+        # Normalize probabilities 
+        self.proba = self.proba / np.sum(self.proba)
 
-        node_path = []
-        proba_path = []
-        reward_path = []
+        # Sample leaf index a_t
+        a_t = self.rng.choice(range(self.K), p=self.proba)
         node = leaves[a_t]
-        reward_path.append(self.environment.get_reward_by_node(node))
-        node_path.append(a_t)
-        proba_path.append(self.proba[a_t])
 
+        node_path = [node]
+        reward_path = [self.environment.get_reward_by_node(node)]
+        proba_path = [self.proba[a_t]]
+
+        # Init for upward pass
         past_vector_proba = self.proba
-        past_indexes = range(self.K)
-        past_nodes = self.leaves
+        past_nodes = leaves
         past_names = [leaf.name for leaf in past_nodes]
 
-        while bool(node.parent):
+        while node is not None and node.parent.name!="root":
             parent = node.parent
-
-            current_nodes = list(set([node.parent for node in past_nodes]))
+            # Get all parent nodes from current layer
+            current_nodes = list(set([n.parent for n in past_nodes]))
+            #print(current_nodes)
             current_names = [n.name for n in current_nodes]
-            current_indexes = len(current_nodes)
-            current_vector_proba = np.zeros(current_indexes)
-            for i,node in enumerate(current_nodes):
-                childrens_node = node.children
-                childrens_name = [c.name for c in childrens_node]
-                indexes = [i for i,past_name in enumerate(past_names) if past_name in childrens_name]
-                current_vector_proba[i] = np.sum(past_vector_proba[indexes])
+            current_vector_proba = np.zeros(len(current_nodes))
 
-            index_parent = list(current_names).index(parent.name)
-            proba_path.append(current_vector_proba[current_vector_proba[index_parent]])
-            
+            for i, parent_node in enumerate(current_nodes):
+                children = parent_node.children
+                children_names = [c.name for c in children]
+                
+                name_to_proba = {name: p for name, p in zip(past_names, past_vector_proba)}
+                current_vector_proba[i] = sum(
+                                            name_to_proba[child_name]
+                                            for child_name in children_names
+                                            if child_name in name_to_proba
+                                        )
 
-            node_path.append(parent) 
-            reward_parent = self.environment.get_reward_by_node(parent)
-            reward_path.append(reward_parent)
+            # Append info for current node
+            index_parent = current_names.index(parent.name)
+            proba_path.append(current_vector_proba[index_parent])
+            reward_path.append(self.environment.get_reward_by_node(parent))
+            node_path.append(parent)
+
+            # Update for next level
             node = parent
             past_vector_proba = current_vector_proba
-            past_indexes = current_indexes
             past_nodes = current_nodes
             past_names = current_names
 
-        node_path = node_path[::-1] 
+        # Reverse paths to start from root to leaf
+        node_path = node_path[::-1]
         reward_path = reward_path[::-1]
         proba_path = proba_path[::-1]
-        
+
         return a_t, node_path, reward_path, proba_path
 
 
