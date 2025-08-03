@@ -64,6 +64,7 @@ class Tree:
             'root': None,
         }
         self.max_level = 0
+        self.scores = np.array([])
 
     def create_node(self, data, parent=None):
         """

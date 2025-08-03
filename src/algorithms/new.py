@@ -24,6 +24,7 @@ class NestedExponentialWeights:
         self.rng = np.random.RandomState(settings['rd'])
         self.max_round = settings['max_rounds']
         self.settings = settings
+        self.lr = 1
 
     def set_environment(self, environment):
         """
