@@ -5,7 +5,8 @@ sys.path.append(base_dir)
 
 choices_algo = {'exp3': 'Exp3',
                 'new': 'NestedExponentialWeights', 
-                'nexp3': 'NEXP3'}
+                'nexp3': 'NEXP3',
+                'ntsallis': 'NTSALLISINF'}
 
 def get_algo_by_name(settings):
     """ Gets distribution according to hyperparameter choice
