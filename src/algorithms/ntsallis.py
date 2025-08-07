@@ -88,7 +88,7 @@ class NTSALLISINF:
                  )
         
         constraints = [{'type': 'eq', 'fun': lambda p: np.sum(p) - 1}]
-        bounds = [(0, 1) for _ in range(self.K)]
+        bounds = [(EPS, 1) for _ in range(self.K)]
         x0 = pt.copy()
         result = minimize(
                         tsallis_mirror_obj,
@@ -96,7 +96,7 @@ class NTSALLISINF:
                         bounds=bounds,
                         constraints=constraints,
                         method='SLSQP',
-                        options={'ftol': 1e-10, 'maxiter': 500}
+                        options={'ftol': 1e-4, 'maxiter': 100}
                         )
         if result.success and np.all(result.x >= 0):
             self.proba = result.x
